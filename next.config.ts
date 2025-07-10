@@ -15,17 +15,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "backend.stackwalls.com"
+        hostname: "*"
       }
     ]
   },
-  swcMinify: true,
   compress: true,
-  optimizeFonts: true,
-  devIndicators: {
-    buildActivity: true,
-    buildActivityPosition: "bottom-right"
-  },
   compiler: {
     removeConsole: false
     // removeConsole: process.env.NODE_ENV === "production"

@@ -49,7 +49,7 @@ const Scrollbar = ({ children, style, ref, ...other }: DivProps) => {
   }
 
   return (
-    <div className="flex-grow h-full overflow-hidden">
+    <div className="grow h-full overflow-hidden">
       <SimpleBar
         scrollableNodeProps={{
           ref

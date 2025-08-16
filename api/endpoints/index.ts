@@ -9,5 +9,3 @@ export const mediaUrl = (url: string) => {
 };
 
 export const endpoints = {};
-
-export const sucessNotificationEndPoints = [];

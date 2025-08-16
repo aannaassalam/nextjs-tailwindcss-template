@@ -4,9 +4,41 @@ import "@/styles/globals.css";
 import type { AppContext, AppProps } from "next/app";
 import App from "next/app";
 import React from "react";
-import { Toaster } from "sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { toast, Toaster } from "sonner";
+import {
+  Mutation,
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+  QueryKey
+} from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
+
+interface SuccessData {
+  message?: string;
+}
+
+// Example mutation variables type
+type Variables = Record<string, any>;
+
+// Example mutation context type
+type Context = unknown;
+
+interface ErrorData {
+  response: {
+    data: {
+      message: string;
+    };
+  };
+}
+
+// Define meta type for mutations
+interface MutationMeta {
+  invalidateQueries?: string[];
+  successMessage?: string;
+  errorMessage?: string;
+  showToast?: boolean;
+}
 
 /**
  * It suppresses the useLayoutEffect warning when running in SSR mode
@@ -25,10 +57,35 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      // refetchOnMount: false,
+      refetchOnMount: false,
       retry: 0
     }
-  }
+  },
+  mutationCache: new MutationCache({
+    onSuccess: (data, _variables, _context, mutation) => {
+      const result = data as SuccessData;
+      const showToast = mutation.meta?.showToast !== false;
+      if (showToast && result?.message) {
+        toast.success(result?.message);
+      }
+    },
+    onError: (res, _variables, _context, _mutation) => {
+      const result = res as unknown as ErrorData;
+      if (result?.response?.data?.message) {
+        toast.error(result?.response?.data?.message);
+      } else {
+        toast.error("An error occurred while processing your request.");
+      }
+    },
+    onSettled: (_data, _error, _variables, _context, mutation) => {
+      if (mutation?.meta?.invalidateQueries) {
+        queryClient.invalidateQueries({
+          queryKey: mutation?.meta?.invalidateQueries as QueryKey,
+          refetchType: "all"
+        });
+      }
+    }
+  })
 });
 
 export default function CustomApp({ Component, pageProps }: AppProps) {

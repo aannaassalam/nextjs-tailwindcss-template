@@ -13,6 +13,7 @@ import {
   QueryKey
 } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
+import { AxiosResponse } from "axios";
 
 interface SuccessData {
   message?: string;
@@ -63,10 +64,10 @@ export const queryClient = new QueryClient({
   },
   mutationCache: new MutationCache({
     onSuccess: (data, _variables, _context, mutation) => {
-      const result = data as SuccessData;
+      const message = (data as AxiosResponse).headers["x-message"];
       const showToast = mutation.meta?.showToast !== false;
-      if (showToast && result?.message) {
-        toast.success(result?.message);
+      if (showToast && message) {
+        toast.success(message);
       }
     },
     onError: (res, _variables, _context, _mutation) => {
